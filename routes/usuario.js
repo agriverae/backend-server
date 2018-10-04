@@ -16,7 +16,7 @@ app.get('/', (req,res,next) => {
 
     Usuario.find({}, 'nombre email img role')
     .exec(
-        (err,usarios)=> {
+        (err,usuarios)=> {
         if(err){
             return res.status(500).json({
                 ok: false,
@@ -27,7 +27,7 @@ app.get('/', (req,res,next) => {
 
         res.status(201).json({
             ok: true,
-            usarios: usarios
+            usuarios
         })
     }); 
 });
