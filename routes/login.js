@@ -42,14 +42,64 @@ app.post('/google', async(req,res) => {
                 ok: false,
                 mensaje: 'Token no valido'
             });
-        })
+        });
 
+    Usuario.findOne({email: googleUser.email}, (err, usuarioDB) => {
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al buscar usuario',
+                errors: err
+            });
+        }
 
-    return res.status(200).json({
-        ok: true,
-        mensaje: 'OK!',
-        googleUser: googleUser
-    })
+        if( usuarioDB){
+            if(usuarioDB.google === false){
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'Debe de usar su autenticacion normal',
+                });
+            } else {
+                var token = jwt.sign({usuario: usuarioDB}, SEED , { expiresIn: 14400 }); // 4 horas
+                usuarioDB.password = '=)';
+        
+                res.status(201).json({
+                    ok: true,
+                    usuario: usuarioDB,
+                    token,
+                    id: usuarioDB._id
+                })
+            }
+        } else {
+            // El usuario no existe... hay que crearlo
+            var usuario = new Usuario();
+
+            usuario.nombre = googleUser.nombre;
+            usuario.email = googleUser.email;
+            usuario.img = googleUser.img;
+            usuario.google = true;
+            usuario.password = ':)';
+
+            usuario.save( (err, usuarioDB) => {
+                var token = jwt.sign({usuario: usuarioDB}, SEED , { expiresIn: 14400 }); // 4 horas
+                usuarioDB.password = '=)';
+        
+                res.status(201).json({
+                    ok: true,
+                    usuario: usuarioDB,
+                    token,
+                    id: usuarioDB._id
+                })
+            });
+        }  
+
+    });
+
+    // return res.status(200).json({
+    //     ok: true,
+    //     mensaje: 'OK!',
+    //     googleUser: googleUser
+    // })
 });
 
 
