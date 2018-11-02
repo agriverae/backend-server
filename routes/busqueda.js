@@ -32,7 +32,7 @@ app.get('/coleccion/:tabla/:busqueda', (req, res) => {
             });
     }
 
-    promessa.then(data => {
+    promesa.then(data => {
         res.status(200).json({
             ok: true,
             [tabla]: data 
